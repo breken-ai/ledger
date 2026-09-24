@@ -63,6 +63,15 @@ func startCoverageStats() {
 		return
 	}
 
+	// Seeded from the registered set so a sonde the run never satisfies is
+	// reported with zero hits: an absent row reads as "not instrumented", and
+	// the sonde that never fired is the one the table exists to surface.
+	covStatsMu.Lock()
+	for _, msg := range coverageMessages() {
+		covStatsData[msg] = &covStat{}
+	}
+	covStatsMu.Unlock()
+
 	go func() {
 		for range time.Tick(covBucket) {
 			dumpCoverageStats()
