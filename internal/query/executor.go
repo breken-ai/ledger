@@ -87,7 +87,7 @@ func Execute(
 	// Validate mode compatibility
 	if req.GetMode() == commonpb.QueryMode_QUERY_MODE_AGGREGATE_VOLUMES &&
 		pq.GetTarget() != commonpb.QueryTarget_QUERY_TARGET_ACCOUNTS {
-		return nil, errors.New("AGGREGATE_VOLUMES mode is only valid for ACCOUNTS target queries")
+		return nil, &ErrPreparedQueryAggregateTarget{Target: pq.GetTarget()}
 	}
 
 	// The definition and volumes share the reserved main-store snapshot above.
@@ -190,7 +190,7 @@ func Execute(
 		}
 
 	default:
-		return nil, fmt.Errorf("unknown query mode: %v", req.GetMode())
+		return nil, &ErrQueryModeUnsupported{Mode: req.GetMode()}
 	}
 
 	return resp, nil
